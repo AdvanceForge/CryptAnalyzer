@@ -1,98 +1,38 @@
 package ru.kolomoets.cryptanalyzer.core;
 
-import java.util.HashMap;
-import java.util.Map;
+import ru.kolomoets.cryptanalyzer.util.Alphabet;
+import ru.kolomoets.cryptanalyzer.util.Type;
 
-/**
- * Класс для шифрования/дешифрования текста шифром Цезаря.
- * Поддерживает русские и английские буквы, цифры и основные символы.
- * Все операции выполняются в нижнем регистре.
- */
+import java.util.List;
 
 public class CaesarCipher {
 
-    private static final String RU = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
-    private static final String ENG = "abcdefghijklmnopqrstuvwxyz";
-    private static final String DIGITS = "0123456789";
-    /**
-     * Поддерживаемые символы пунктуации и пробел
-     */
-    private static final String SYMBOLS = "!@#$%^&*()_+=-<>?|'\":;\\{}[],./~`";
-    private static final String ALPHABET = RU + ENG + DIGITS + SYMBOLS;
-    /**
-     * Таблица для быстрого поиска индексов символов.
-     * Ключ: символ (Character)
-     * Значение: его индекс в ALPHABET (Integer)
-     * <p>
-     * Инициализируется один раз при загрузке класса.
-     * Позволяет находить индекс символа за O(1) вместо O(n) у String.indexOf()
-     */
-    private static final Map<Character, Integer> CHAR_INDEX = createCharToIndexMap();
-
-    /**
-     * Шифрует текст с использованием указанного ключа.
-     *
-     * @param text Исходный текст (может содержать любые символы)
-     * @param key  Ключ шифрования (положительное целое число)
-     * @return Зашифрованный текст в нижнем регистре. Символы не из алфавита остаются без изменений.
-     */
-    public String encrypt(String text, int key) {
-        return converter(text.toLowerCase(), key);
-    }
-
-    /**
-     * Дешифрует текст (работает только с нижним регистром)
-     *
-     * @param text Зашифрованный текст в нижнем регистре
-     * @param key  Ключ шифрования
-     * @return Расшифрованный текст в нижнем регистре
-     */
-    public String decrypt(String text, int key) {
-        return converter(text, -key);
-    }
-
-    private String converter(String text, int shift) {
-        // Создаем "билдер" для результата
+    public String encrypt(String input, int key) {
         StringBuilder result = new StringBuilder();
-        // Преобразуем текст в массив символов
-        char[] characters = text.toCharArray();
-        // Обрабатываем каждый символ по очереди
-        for (char currentChar : characters) {
-            // Проверяем, есть ли символ в нашем алфавите
-            if (CHAR_INDEX.containsKey(currentChar)) {
-                // Получаем исходную позицию символа
-                int originalPos = CHAR_INDEX.get(currentChar);
-                //Вычисляем новую позицию
-                int newPos = originalPos + shift;
-                //Корректируем позицию, если она вне границ
-                while (newPos < 0) {
-                    newPos += ALPHABET.length();
+        for (char ch : input.toLowerCase().toCharArray()) {
+            // Определяем, к какому алфавиту принадлежит символ
+            Type type = Alphabet.detectedType(ch);
+            if (type != null) {
+                List<Character> alphabet = Alphabet.getAlphabet(type);
+                int index = alphabet.indexOf(ch);
+                // Вычисляем сдвиг с учетом размера алфавита и возможного выхода за границы
+                int shiftedIndex = (index + key) % alphabet.size();
+                // Если сдвиг оказался отрицательным — корректируем (чтобы не получить IndexOutOfBounds)
+                if (shiftedIndex < 0) {
+                    shiftedIndex += alphabet.size();
                 }
-                newPos = newPos % ALPHABET.length();
-                //Получаем новый символ
-                char newChar = ALPHABET.charAt(newPos);
-                result.append(newChar);
+                result.append(alphabet.get(shiftedIndex));
             } else {
-                // Если символа нет в алфавите - оставляем без изменений
-                result.append(currentChar);
+                // Если символ не принадлежит ни одному алфавиту — не шифруем
+                result.append(ch);
             }
         }
         return result.toString();
     }
 
-
-    /**
-     * Метод для инициализации таблицы поиска CHAR_INDEX.
-     * Проходит по всем символам ALPHABET и заполняет Map.
-     *
-     * @return Заполненная таблица символов
-     */
-    private static Map<Character, Integer> createCharToIndexMap() {
-        Map<Character, Integer> map = new HashMap<>();
-        for (int i = 0; i < ALPHABET.length(); i++) {
-            map.put(ALPHABET.charAt(i), i);
-        }
-        return map;
+    // Дешифровка — это просто сдвиг в обратную сторону
+    public String decrypt(String input, int key) {
+        return encrypt(input, -key);
     }
 
 }
