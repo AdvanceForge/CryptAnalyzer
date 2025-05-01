@@ -8,7 +8,6 @@ import java.util.Set;
  * Класс Alphabet предоставляет фиксированные алфавиты для различных типов символов:
  * - Русский алфавит
  * - Английский алфавит
- * - Цифры
  * - Специальные символы
  * <p>
  * Каждый алфавит реализован как неизменяемый список (List),
@@ -34,7 +33,6 @@ public class Alphabet {
             'u', 'v', 'w', 'x', 'y', 'z'
     );
 
-    private static final List<Character> DIGITS_LIST = List.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
 
     private static final List<Character> SYMBOLS_LIST = List.of(
             ' ', '!', '@', '#', '$', '%', '^', '&',
@@ -45,7 +43,6 @@ public class Alphabet {
     // Для быстрого определения принадлежности символа используем HashSet
     private static final Set<Character> RUSSIAN_SET = new HashSet<>(RUSSIAN_LIST);
     private static final Set<Character> ENGLISH_SET = new HashSet<>(ENGLISH_LIST);
-    private static final Set<Character> DIGITS_SET = new HashSet<>(DIGITS_LIST);
     private static final Set<Character> SYMBOLS_SET = new HashSet<>(SYMBOLS_LIST);
 
     /**
@@ -55,7 +52,6 @@ public class Alphabet {
     public static Type detectedType(char ch) {
         if (RUSSIAN_SET.contains(ch)) return Type.RUSSIAN;
         if (ENGLISH_SET.contains(ch)) return Type.ENGLISH;
-        if (DIGITS_SET.contains(ch)) return Type.DIGITS;
         if (SYMBOLS_SET.contains(ch)) return Type.SYMBOLS;
         return null;
     }
@@ -65,16 +61,11 @@ public class Alphabet {
      * Используется при шифровании/дешифровании для поиска и сдвига символов.
      */
     public static List<Character> getAlphabet(Type type) {
-        switch (type) {
-            case RUSSIAN:
-                return RUSSIAN_LIST;
-            case ENGLISH:
-                return ENGLISH_LIST;
-            case DIGITS:
-                return DIGITS_LIST;
-            case SYMBOLS:
-                return SYMBOLS_LIST;
-        }
-        throw new IllegalArgumentException("Unsupported Type: " + type);
+        return switch (type) {
+            case RUSSIAN -> RUSSIAN_LIST;
+            case ENGLISH -> ENGLISH_LIST;
+            case SYMBOLS -> SYMBOLS_LIST;
+            default -> throw new IllegalArgumentException("Unsupported Type: " + type);
+        };
     }
 }

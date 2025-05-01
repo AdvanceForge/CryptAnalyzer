@@ -7,7 +7,10 @@ import java.util.List;
 
 public class CaesarCipher {
 
-    public String encrypt(String input, int key) {
+    private CaesarCipher(){
+    }
+
+    public static String encrypt(String input, int key) {
         StringBuilder result = new StringBuilder();
         for (char ch : input.toLowerCase().toCharArray()) {
             // Определяем, к какому алфавиту принадлежит символ
@@ -31,7 +34,7 @@ public class CaesarCipher {
     }
 
     // Дешифровка — это просто сдвиг в обратную сторону
-    public String decrypt(String input, int key) {
+    public static String decrypt(String input, int key) {
         return encrypt(input, -key);
     }
 
