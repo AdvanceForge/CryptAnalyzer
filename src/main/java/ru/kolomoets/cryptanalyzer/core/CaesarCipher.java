@@ -7,7 +7,7 @@ import java.util.List;
 
 public class CaesarCipher {
 
-    private CaesarCipher(){
+    private CaesarCipher() {
     }
 
     public static String encrypt(String input, int key) {
@@ -16,7 +16,7 @@ public class CaesarCipher {
             // Определяем, к какому алфавиту принадлежит символ
             Type type = Alphabet.detectedType(ch);
             if (type != null) {
-                List<Character> alphabet = Alphabet.getAlphabet(type);
+                List<Character> alphabet = Alphabet.getAlphabet(type);// Получаем соответствующий алфавит
                 int index = alphabet.indexOf(ch);
                 // Вычисляем сдвиг с учетом размера алфавита и возможного выхода за границы
                 int shiftedIndex = (index + key) % alphabet.size();
@@ -24,7 +24,7 @@ public class CaesarCipher {
                 if (shiftedIndex < 0) {
                     shiftedIndex += alphabet.size();
                 }
-                result.append(alphabet.get(shiftedIndex));
+                result.append(alphabet.get(shiftedIndex));// Добавляем зашифрованный символ
             } else {
                 // Если символ не принадлежит ни одному алфавиту — не шифруем
                 result.append(ch);
@@ -37,5 +37,4 @@ public class CaesarCipher {
     public static String decrypt(String input, int key) {
         return encrypt(input, -key);
     }
-
 }

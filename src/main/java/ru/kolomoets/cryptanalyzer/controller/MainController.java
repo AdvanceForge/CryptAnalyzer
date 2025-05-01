@@ -1,5 +1,6 @@
 package ru.kolomoets.cryptanalyzer.controller;
 
+import ru.kolomoets.cryptanalyzer.core.BruteForce;
 import ru.kolomoets.cryptanalyzer.core.CaesarCipher;
 import ru.kolomoets.cryptanalyzer.in_out.FileService;
 
@@ -16,6 +17,7 @@ public class MainController {
         System.out.println("Выберите режим работы");
         System.out.println("1 - шифрование");
         System.out.println("2 - дешиврование (с ключом)");
+        System.out.println("3 - взлом (brute force");
 
         System.out.println("Введите номер команды");
         String command = scanner.nextLine();
@@ -23,6 +25,7 @@ public class MainController {
         switch (command) {
             case "1" -> handleEncryption();
             case "2" -> handleDecryption();
+            case "3" -> handleBruteForce();
             default -> System.err.println("Неверная команда. Завершение работы.");
         }
     }
@@ -39,6 +42,12 @@ public class MainController {
     public void decrypt(String inputPath, String outputPath, int key) {
         String text = FileService.readFile(inputPath);
         String decrypted = CaesarCipher.decrypt(text, key);
+        FileService.writeFile(outputPath, decrypted);
+    }
+
+    public void bruteForce(String inputPath, String outputPath) {
+        String text = FileService.readFile(inputPath);
+        String decrypted = BruteForce.bruteForceDecrypt(text);
         FileService.writeFile(outputPath, decrypted);
     }
 
@@ -89,5 +98,22 @@ public class MainController {
 
         decrypt(inputPath, outputPath, key);
         System.out.println("✔️ Текст успешно расшифрован и записан в: " + outputPath);
+    }
+
+    private void handleBruteForce() {
+
+        System.out.print("Введите путь к зашифрованному файлу: ");
+        String inputPath = scanner.nextLine();
+
+        Path path = Path.of(inputPath);
+        String parentDir = path.getParent() != null ? path.getParent().toString() : ".";
+
+        System.out.println("Введите путь для сохранения результата (оставьте пустым для brute_force.txt): ");
+        String outputPath = scanner.nextLine();
+        if (outputPath.isBlank()){
+            outputPath = Path.of(parentDir, "brute_force.txt").toString();
+        }
+        bruteForce(inputPath, outputPath);
+        System.out.println("✔️ Brute force завершён. Результат записан в: " + outputPath);
     }
 }

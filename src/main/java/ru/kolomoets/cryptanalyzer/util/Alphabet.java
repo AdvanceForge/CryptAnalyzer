@@ -65,7 +65,18 @@ public class Alphabet {
             case RUSSIAN -> RUSSIAN_LIST;
             case ENGLISH -> ENGLISH_LIST;
             case SYMBOLS -> SYMBOLS_LIST;
-            default -> throw new IllegalArgumentException("Unsupported Type: " + type);
         };
     }
+
+    public static int getMaxAlphabetSize() {
+        int maxSize = 0;
+        for (Type type : Type.values()) {
+            List<Character> alphabet = getAlphabet(type);
+            if (alphabet.size() > maxSize) {
+                maxSize = alphabet.size();
+            }
+        }
+        return maxSize;
+    }
+
 }
