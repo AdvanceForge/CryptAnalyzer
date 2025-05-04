@@ -23,7 +23,6 @@ public class StatisticalAnalyzer {
         if (mainType == null) {
             throw new IllegalArgumentException("Текст не содержит символов из известных алфавитов.");
         }
-
         // Создаем словарь для хранения ключа (хотя теперь он будет содержать только один ключ)
         Map<Type, Integer> potentialKeys = new HashMap<>();
 
@@ -45,6 +44,8 @@ public class StatisticalAnalyzer {
                 // Сохраняем ключ для основного алфавита
                 potentialKeys.put(mainType, key);
             }
+            System.out.println("Преобладающий алфавит: " + mainType);
+            System.out.println("Самый частый символ: " + "'" + mostFrequent + "'");
         }
 
         // Проверяем, нашли ли мы ключ
@@ -100,7 +101,7 @@ public class StatisticalAnalyzer {
         // Создаем словарь для подсчета частоты символов
         Map<Character, Integer> charCount = new HashMap<>();
         // Проходим по каждому символу текста
-        for (char ch : text.toCharArray()) {
+        for (char ch : text.toLowerCase().toCharArray()) {
             // Если символ принадлежит нужному алфавиту, увеличиваем его счетчик
             if (Alphabet.detectedType(ch) == type) {
                 charCount.put(ch, charCount.getOrDefault(ch, 0) + 1);

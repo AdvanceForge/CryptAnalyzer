@@ -11,6 +11,7 @@ public class CaesarCipher {
     }
 
     public static String encrypt(String input, int key) {
+
         StringBuilder result = new StringBuilder();
         for (char ch : input.toLowerCase().toCharArray()) {
             // Определяем, к какому алфавиту принадлежит символ

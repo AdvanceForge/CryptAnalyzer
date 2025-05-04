@@ -18,17 +18,35 @@ public class BruteForce {
                 " the ", " and ", " of ", " to ", " in ", " is ",
                 " it ", " that ", " you ", " we "
         );
-
-        for (int key = 1; key < maxKey; key++) {
+        // Инициализируем переменные для хранения лучшего ключа и текста
+        int bestKey = -1;
+        int maxMatches = 0;
+        String bestDecrypted = input;
+        for (int key = 0; key < maxKey; key++) {
+            // Расшифровываем текст с текущим ключом
             String decrypted = CaesarCipher.decrypt(input, key);
+            // Считаем количество совпадений с частыми словами
+            int matches = 0;
             for (String word : frequentWords) {
+                // Проверяем наличие слова в расшифрованном тексте
                 if (decrypted.contains(word)) {
-                    System.out.println("Подобран ключ: " + key);
-                    return " [KEY FOUND: " + key + "]\n\n" + decrypted;
+                    matches++;
                 }
             }
+            if (matches > maxMatches) {
+                maxMatches = matches;
+                bestKey = key;
+                bestDecrypted = decrypted;
+            }
         }
-        return "Не удалось подобрать ключ.";
+        // Возвращаем результат с лучшим ключом, если он найден
+        if (bestKey != -1) {
+            System.out.println("Подобран ключ: " + bestKey + " (с " + maxMatches + " совпадениями по ключу)");
+            return " [KEY FOUND: " + bestKey + "]\n\n" + bestDecrypted;
+        } else {
+            System.out.println("Не удалось подобрать ключ.");
+            return "Не удалось подобрать ключ.";
+        }
     }
 
     private static int getMaxAlphabetSize() {

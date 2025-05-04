@@ -4,6 +4,7 @@ import ru.kolomoets.cryptanalyzer.core.BruteForce;
 import ru.kolomoets.cryptanalyzer.core.CaesarCipher;
 import ru.kolomoets.cryptanalyzer.core.StatisticalAnalyzer;
 import ru.kolomoets.cryptanalyzer.in_out.FileService;
+import ru.kolomoets.cryptanalyzer.util.Alphabet;
 
 import java.nio.file.Path;
 import java.util.Scanner;
@@ -12,24 +13,35 @@ public class MainController {
 
     private final Scanner scanner = new Scanner(System.in);
 
-    public void run() {
+    public void run()  {
+
         System.out.println("Криптоанализарор запущен\n");
 
-        System.out.println("Выберите режим работы");
-        System.out.println("1 - шифрование");
-        System.out.println("2 - дешиврование (с ключом)");
-        System.out.println("3 - взлом (brute force)");
-        System.out.println("4 - статистический анализ");
+        boolean running = true;
+        while (running) {
 
-        System.out.println("Введите номер команды");
-        String command = scanner.nextLine();
+            System.out.println("Выберите режим работы");
+            System.out.println("0 - завершение работы");
+            System.out.println("1 - шифрование");
+            System.out.println("2 - дешиврование (с ключом)");
+            System.out.println("3 - взлом (brute force)");
+            System.out.println("4 - статистический анализ");
 
-        switch (command) {
-            case "1" -> handleEncryption();
-            case "2" -> handleDecryption();
-            case "3" -> handleBruteForce();
-            case "4" -> handleStatisticalAnalyzer();
-            default -> System.err.println("Неверная команда. Завершение работы.");
+            System.out.println("Введите номер команды");
+            String command = scanner.nextLine();
+
+            switch (command) {
+                case "0" -> {
+                    System.out.println("Программа завершена");
+                    running = false;
+                }
+                case "1" -> handleEncryption();
+                case "2" -> handleDecryption();
+                case "3" -> handleBruteForce();
+                case "4" -> handleStatisticalAnalyzer();
+                default -> System.err.println("Неверная команда.");
+            }
+            System.out.println("\n");
         }
     }
 
@@ -83,9 +95,11 @@ public class MainController {
 
         System.out.print("🗝️ Введите ключ (целое число): ");
         int key = Integer.parseInt(scanner.nextLine());
+        if (isValidKey(key)) {
+            encrypt(inputPath, outputPath, key);
+            System.out.println("✔️ Текст успешно зашифрован и записан в: " + outputPath);
+        }
 
-        encrypt(inputPath, outputPath, key);
-        System.out.println("✔️ Текст успешно зашифрован и записан в: " + outputPath);
     }
 
     private void handleDecryption() {
@@ -107,9 +121,11 @@ public class MainController {
 
         System.out.print("🗝️ Введите ключ (целое число): ");
         int key = Integer.parseInt(scanner.nextLine());
+        if (isValidKey(key)) {
+            decrypt(inputPath, outputPath, key);
+            System.out.println("✔️ Текст успешно расшифрован и записан в: " + outputPath);
+        }
 
-        decrypt(inputPath, outputPath, key);
-        System.out.println("✔️ Текст успешно расшифрован и записан в: " + outputPath);
     }
 
     private void handleBruteForce() {
@@ -141,9 +157,16 @@ public class MainController {
         if (outputPath.isBlank()) {
             outputPath = Path.of(parentDir, "stat_analyze.txt").toString();
         }
-            statisticalAnalyze(inputPath, outputPath);
-            System.out.println("✔️ Статистический анализ завершён. Результат записан в: " + outputPath);
-
+        statisticalAnalyze(inputPath, outputPath);
+        System.out.println("✔️ Статистический анализ завершён. Результат записан в: " + outputPath);
     }
 
+    private static boolean isValidKey(int key) {
+        int maxAlphabetSize = Alphabet.getMaxAlphabetSize();
+        if (key <= 0 || key >= maxAlphabetSize) {
+            System.out.println("Ошибка: ключ должен быть в диапазоне от 1 до " + (maxAlphabetSize - 1));
+            return false;
+        }
+        return true;
+    }
 }
