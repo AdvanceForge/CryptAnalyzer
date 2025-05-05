@@ -3,9 +3,12 @@ package ru.kolomoets.cryptanalyzer.controller;
 import ru.kolomoets.cryptanalyzer.core.BruteForce;
 import ru.kolomoets.cryptanalyzer.core.CaesarCipher;
 import ru.kolomoets.cryptanalyzer.core.StatisticalAnalyzer;
+import ru.kolomoets.cryptanalyzer.exception.FileReadException;
+import ru.kolomoets.cryptanalyzer.exception.FileWriteException;
 import ru.kolomoets.cryptanalyzer.in_out.FileService;
 import ru.kolomoets.cryptanalyzer.util.Alphabet;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Scanner;
 
@@ -13,9 +16,9 @@ public class MainController {
 
     private final Scanner scanner = new Scanner(System.in);
 
-    public void run()  {
+    public void run() {
 
-        System.out.println("Криптоанализарор запущен\n");
+        System.out.println("Криптоанализатор запущен\n");
 
         boolean running = true;
         while (running) {
@@ -23,7 +26,7 @@ public class MainController {
             System.out.println("Выберите режим работы");
             System.out.println("0 - завершение работы");
             System.out.println("1 - шифрование");
-            System.out.println("2 - дешиврование (с ключом)");
+            System.out.println("2 - дешифрование (с ключом)");
             System.out.println("3 - взлом (brute force)");
             System.out.println("4 - статистический анализ");
 
@@ -77,94 +80,148 @@ public class MainController {
 
     // Обработка шифрования — интерактивный режим
     private void handleEncryption() {
+        try {
+            System.out.print("Введите путь к исходному файлу: ");
+            String inputPath = scanner.nextLine();
 
-        System.out.print("Введите путь к исходному файлу: ");
-        String inputPath = scanner.nextLine();
+            Path path = Path.of(inputPath);
+            if (!Files.exists(path)) {
+                System.err.println("❌ Файл не существует: " + inputPath);
+                return;
+            }
+            // Определяем директорию входного файла
+            String parentDir = path.getParent() != null ? path.getParent().toString() : "."; // если файл в текущей директории
 
-        // Определяем директорию входного файла
-        Path path = Path.of(inputPath);
-        String parentDir = path.getParent() != null ? path.getParent().toString() : "."; // если файл в текущей директории
+            System.out.print("Введите путь для записи зашифрованного текста (оставьте пустым для encrypt.txt): ");
+            String outputPath = scanner.nextLine();
 
-        System.out.print("Введите путь для записи зашифрованного текста (оставьте пустым для encrypt.txt): ");
-        String outputPath = scanner.nextLine();
+            // Если путь не введён, создаём файл encrypt.txt в той же директории
+            if (outputPath.isBlank()) {
+                outputPath = Path.of(parentDir, "encrypt.txt").toString();
+            }
+            System.out.print("🗝️ Введите ключ (целое число): ");
 
-        // Если путь не введён, создаём файл encrypt.txt в той же директории
-        if (outputPath.isBlank()) {
-            outputPath = Path.of(parentDir, "encrypt.txt").toString();
+            int key = Integer.parseInt(scanner.nextLine());
+
+            if (isValidKey(key)) {
+                encrypt(inputPath, outputPath, key);
+                System.out.println("✔️ Текст успешно зашифрован и записан в: " + outputPath);
+            }
+
+        } catch (NumberFormatException e) {
+            System.err.println("❌ Ключ должен быть целым числом");
+        } catch (FileReadException e) {
+            System.err.println("❌ Не удалось прочитать файл: " + e.getMessage());
+        } catch (FileWriteException e) {
+            System.err.println("❌ Не удалось записать файл: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("❌ Произошла непредвиденная ошибка. " + e.getMessage());
+            e.printStackTrace(); // Выводит стек вызовов для отладки
         }
-
-        System.out.print("🗝️ Введите ключ (целое число): ");
-        int key = Integer.parseInt(scanner.nextLine());
-        if (isValidKey(key)) {
-            encrypt(inputPath, outputPath, key);
-            System.out.println("✔️ Текст успешно зашифрован и записан в: " + outputPath);
-        }
-
     }
 
     private void handleDecryption() {
+        try {
+            System.out.print("Введите путь к исходному файлу: ");
+            String inputPath = scanner.nextLine();
 
-        System.out.print("Введите путь к исходному файлу: ");
-        String inputPath = scanner.nextLine();
+            Path path = Path.of(inputPath);
+            if (!Files.exists(path)) {
+                System.err.println("❌ Файл не существует: " + inputPath);
+                return;
+            }
+            // Определяем директорию входного файла
+            String parentDir = path.getParent() != null ? path.getParent().toString() : "."; // если файл в текущей директории
 
-        // Определяем директорию входного файла
-        Path path = Path.of(inputPath);
-        String parentDir = path.getParent() != null ? path.getParent().toString() : "."; // если файл в текущей директории
+            System.out.print("Введите путь для записи расшифрованного текста (оставьте пустым для decrypt.txt): ");
+            String outputPath = scanner.nextLine();
 
-        System.out.print("Введите путь для записи зашифрованного текста (оставьте пустым для decrypt.txt): ");
-        String outputPath = scanner.nextLine();
+            // Если путь не введён, создаём файл decrypt.txt в той же директории
+            if (outputPath.isBlank()) {
+                outputPath = Path.of(parentDir, "decrypt.txt").toString();
+            }
 
-        // Если путь не введён, создаём файл decrypt.txt в той же директории
-        if (outputPath.isBlank()) {
-            outputPath = Path.of(parentDir, "decrypt.txt").toString();
-        }
-
-        System.out.print("🗝️ Введите ключ (целое число): ");
-        int key = Integer.parseInt(scanner.nextLine());
-        if (isValidKey(key)) {
-            decrypt(inputPath, outputPath, key);
-            System.out.println("✔️ Текст успешно расшифрован и записан в: " + outputPath);
+            System.out.print("🗝️ Введите ключ (целое число): ");
+            int key = Integer.parseInt(scanner.nextLine());
+            if (isValidKey(key)) {
+                decrypt(inputPath, outputPath, key);
+                System.out.println("✔️ Текст успешно расшифрован и записан в: " + outputPath);
+            }
+        } catch (NumberFormatException e) {
+            System.err.println("❌ Ключ должен быть целым числом");
+        } catch (FileReadException e) {
+            System.err.println("❌ Не удалось прочитать файл: " + e.getMessage());
+        } catch (FileWriteException e) {
+            System.err.println("❌ Не удалось записать файл: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("❌ Произошла непредвиденная ошибка. " + e.getMessage());
+            e.printStackTrace(); // Выводит стек вызовов для отладки
         }
 
     }
 
     private void handleBruteForce() {
+        try {
+            System.out.print("Введите путь к зашифрованному файлу: ");
+            String inputPath = scanner.nextLine();
 
-        System.out.print("Введите путь к зашифрованному файлу: ");
-        String inputPath = scanner.nextLine();
+            Path path = Path.of(inputPath);
+            if (!Files.exists(path)) {
+                System.err.println("❌ Файл не существует: " + inputPath);
+                return;
+            }
+            String parentDir = path.getParent() != null ? path.getParent().toString() : ".";
 
-        Path path = Path.of(inputPath);
-        String parentDir = path.getParent() != null ? path.getParent().toString() : ".";
-
-        System.out.println("Введите путь для сохранения результата (оставьте пустым для brute_force.txt): ");
-        String outputPath = scanner.nextLine();
-        if (outputPath.isBlank()) {
-            outputPath = Path.of(parentDir, "brute_force.txt").toString();
+            System.out.println("Введите путь для сохранения результата (оставьте пустым для brute_force.txt): ");
+            String outputPath = scanner.nextLine();
+            if (outputPath.isBlank()) {
+                outputPath = Path.of(parentDir, "brute_force.txt").toString();
+            }
+            bruteForce(inputPath, outputPath);
+            System.out.println("✔️ Brute force завершён. Результат записан в: " + outputPath);
+        } catch (FileReadException e) {
+            System.err.println("❌ Не удалось прочитать файл: " + e.getMessage());
+        } catch (FileWriteException e) {
+            System.err.println("❌ Не удалось записать файл: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("❌ Произошла непредвиденная ошибка. " + e.getMessage());
+            e.printStackTrace(); // Выводит стек вызовов для отладки
         }
-        bruteForce(inputPath, outputPath);
-        System.out.println("✔️ Brute force завершён. Результат записан в: " + outputPath);
     }
 
     private void handleStatisticalAnalyzer() {
-        System.out.print("Введите путь к зашифрованному файлу: ");
-        String inputPath = scanner.nextLine();
+        try {
+            System.out.print("Введите путь к зашифрованному файлу: ");
+            String inputPath = scanner.nextLine();
 
-        Path path = Path.of(inputPath);
-        String parentDir = path.getParent() != null ? path.getParent().toString() : ".";
+            Path path = Path.of(inputPath);
+            if (!Files.exists(path)) {
+                System.err.println("❌ Файл не существует: " + inputPath);
+                return;
+            }
+            String parentDir = path.getParent() != null ? path.getParent().toString() : ".";
 
-        System.out.print("Введите путь для сохранения результата (оставьте пустым для stat_analyze.txt): ");
-        String outputPath = scanner.nextLine();
-        if (outputPath.isBlank()) {
-            outputPath = Path.of(parentDir, "stat_analyze.txt").toString();
+            System.out.print("Введите путь для сохранения результата (оставьте пустым для stat_analyze.txt): ");
+            String outputPath = scanner.nextLine();
+            if (outputPath.isBlank()) {
+                outputPath = Path.of(parentDir, "stat_analyze.txt").toString();
+            }
+            statisticalAnalyze(inputPath, outputPath);
+            System.out.println("✔️ Статистический анализ завершён. Результат записан в: " + outputPath);
+        } catch (FileReadException e) {
+            System.err.println("❌ Не удалось прочитать файл: " + e.getMessage());
+        } catch (FileWriteException e) {
+            System.err.println("❌ Не удалось записать файл: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("❌ Произошла непредвиденная ошибка. " + e.getMessage());
+            e.printStackTrace(); // Выводит стек вызовов для отладки
         }
-        statisticalAnalyze(inputPath, outputPath);
-        System.out.println("✔️ Статистический анализ завершён. Результат записан в: " + outputPath);
     }
 
     private static boolean isValidKey(int key) {
         int maxAlphabetSize = Alphabet.getMaxAlphabetSize();
         if (key <= 0 || key >= maxAlphabetSize) {
-            System.out.println("Ошибка: ключ должен быть в диапазоне от 1 до " + (maxAlphabetSize - 1));
+            System.err.println("❌ Ошибка: ключ должен быть в диапазоне от 1 до " + (maxAlphabetSize - 1));
             return false;
         }
         return true;

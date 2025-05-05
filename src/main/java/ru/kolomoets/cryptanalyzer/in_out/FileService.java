@@ -16,12 +16,7 @@ public class FileService {
     }
 
     public static String readFile(String input) {
-
         Path path = Path.of(input);
-        // Проверяем, существует ли файл
-        if (!Files.exists(path)) {
-            throw new FileReadException("Файл не существует: " + input);
-        }
         // Читаем файл построчно с буфферизацией
         StringBuilder text = new StringBuilder();
         try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
