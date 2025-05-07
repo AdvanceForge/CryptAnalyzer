@@ -42,7 +42,7 @@ public class BruteForce {
         // Возвращаем результат с лучшим ключом, если он найден
         if (bestKey != -1) {
             System.out.println("Подобран ключ: " + bestKey + " (с " + maxMatches + " совпадениями по ключу)");
-            return " [KEY FOUND: " + bestKey + "]\n\n" + bestDecrypted;
+            return "[KEY FOUND: " + bestKey + "]\n\n" + bestDecrypted;
         } else {
             System.out.println("Не удалось подобрать ключ.");
             return "Не удалось подобрать ключ.";
