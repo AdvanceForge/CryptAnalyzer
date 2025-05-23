@@ -4,14 +4,30 @@ import ru.kolomoets.cryptanalyzer.util.Alphabet;
 
 import java.util.Set;
 
+/**
+ * Класс BruteForce реализует метод подбора ключа для шифра Цезаря методом полного перебора (brute force).
+ * <p>
+ * Алгоритм перебирает все возможные значения ключа, расшифровывает текст,
+ * и выбирает расшифровку с наибольшим количеством совпадений по частым словам.
+ */
+
 public class BruteForce {
 
     private BruteForce() {
     }
 
-    public static String bruteForceDecrypt(String input) {
-        int maxKey = getMaxAlphabetSize();
+    /**
+     * Пытается расшифровать переданный текст методом перебора всех возможных ключей.
+     * Для оценки правильности расшифровки используется набор частых слов.
+     *
+     * @param input Зашифрованный текст
+     * @return Расшифрованный текст с подобранным ключом, или сообщение об ошибке
+     */
 
+    public static String bruteForceDecrypt(String input) {
+        int maxKey = Alphabet.getMaxAlphabetSize();
+
+        // Часто встречающиеся слова в русском и английском языках
         Set<String> frequentWords = Set.of(
                 " и ", " не ", " это ", " что ", " на ", " как ", " ты ",
                 " он ", " я ", " в ", " с ", " у ",
@@ -19,9 +35,11 @@ public class BruteForce {
                 " it ", " that ", " you ", " we "
         );
         // Инициализируем переменные для хранения лучшего ключа и текста
-        int bestKey = -1;
-        int maxMatches = 0;
-        String bestDecrypted = input;
+        int bestKey = -1;                // Наиболее подходящий ключ
+        int maxMatches = 0;             // Максимальное количество совпадений
+        String bestDecrypted = input;   // Расшифрованный текст с лучшим ключом
+
+        // Перебор всех возможных ключей
         for (int key = 0; key < maxKey; key++) {
             // Расшифровываем текст с текущим ключом
             String decrypted = CaesarCipher.decrypt(input, key);
@@ -33,6 +51,8 @@ public class BruteForce {
                     matches++;
                 }
             }
+
+            // Сохраняем лучший результат
             if (matches > maxMatches) {
                 maxMatches = matches;
                 bestKey = key;
@@ -47,9 +67,5 @@ public class BruteForce {
             System.out.println("Не удалось подобрать ключ.");
             return "Не удалось подобрать ключ.";
         }
-    }
-
-    private static int getMaxAlphabetSize() {
-        return Alphabet.getMaxAlphabetSize();
     }
 }

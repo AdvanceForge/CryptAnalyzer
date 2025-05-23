@@ -12,8 +12,20 @@ import java.nio.file.Path;
 
 public class FileService {
 
+    /**
+     * Приватный конструктор, чтобы предотвратить создание экземпляров класса.
+     */
+
     private FileService() {
     }
+
+    /**
+     * Читает весь текст из файла по указанному пути.
+     *
+     * @param input путь к входному файлу
+     * @return содержимое файла в виде строки
+     * @throws FileReadException в случае ошибки чтения файла
+     */
 
     public static String readFile(String input) {
         Path path = Path.of(input);
@@ -29,6 +41,14 @@ public class FileService {
         }
         return text.toString();
     }
+
+    /**
+     * Записывает строковое содержимое в файл по указанному пути.
+     *
+     * @param output  путь к выходному файлу
+     * @param content содержимое для записи в файл
+     * @throws FileWriteException в случае ошибки записи файла
+     */
 
     public static void writeFile(String output, String content) {
         Path path = Path.of(output);

@@ -12,9 +12,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Scanner;
 
+/**
+ * Основной контроллер приложения.
+ * Отвечает за взаимодействие с пользователем и управление режимами работы криптоанализатора.
+ */
+
 public class MainController {
 
     private final Scanner scanner = new Scanner(System.in);
+
+    /**
+     * Запускает главный цикл приложения, обрабатывая пользовательские команды.
+     */
 
     public void run() {
 
@@ -48,6 +57,16 @@ public class MainController {
         }
     }
 
+    /**
+     * Шифрует текст из файла inputPath с ключом key и сохраняет результат в outputPath.
+     *
+     * @param inputPath  путь к исходному файлу с текстом
+     * @param outputPath путь для записи зашифрованного текста
+     * @param key        ключ шифрования
+     * @throws FileReadException  если не удалось прочитать файл inputPath
+     * @throws FileWriteException если не удалось записать файл outputPath
+     */
+
     public void encrypt(String inputPath, String outputPath, int key) {
         // Читаем исходный текст из файла по указанному пути
         String text = FileService.readFile(inputPath);
@@ -57,17 +76,45 @@ public class MainController {
         FileService.writeFile(outputPath, encrypted);
     }
 
+    /**
+     * Дешифрует текст из файла inputPath с ключом key и сохраняет результат в outputPath.
+     *
+     * @param inputPath  путь к исходному файлу с зашифрованным текстом
+     * @param outputPath путь для записи расшифрованного текста
+     * @param key        ключ дешифрования
+     * @throws FileReadException  если не удалось прочитать файл inputPath
+     * @throws FileWriteException если не удалось записать файл outputPath
+     */
+
     public void decrypt(String inputPath, String outputPath, int key) {
         String text = FileService.readFile(inputPath);
         String decrypted = CaesarCipher.decrypt(text, key);
         FileService.writeFile(outputPath, decrypted);
     }
 
+    /**
+     * Пробует подобрать ключ методом brute force и сохраняет результат в outputPath.
+     *
+     * @param inputPath  путь к файлу с зашифрованным текстом
+     * @param outputPath путь для записи результата взлома
+     * @throws FileReadException  если не удалось прочитать файл inputPath
+     * @throws FileWriteException если не удалось записать файл outputPath
+     */
+
     public void bruteForce(String inputPath, String outputPath) {
         String text = FileService.readFile(inputPath);
         String decrypted = BruteForce.bruteForceDecrypt(text);
         FileService.writeFile(outputPath, decrypted);
     }
+
+    /**
+     * Выполняет статистический анализ для подбора ключа, расшифровывает текст и сохраняет результат.
+     *
+     * @param inputPath  путь к файлу с зашифрованным текстом
+     * @param outputPath путь для записи результата анализа
+     * @throws FileReadException  если не удалось прочитать файл inputPath
+     * @throws FileWriteException если не удалось записать файл outputPath
+     */
 
     public void statisticalAnalyze(String inputPath, String outputPath) {
         String text = FileService.readFile(inputPath);
@@ -78,7 +125,13 @@ public class MainController {
         FileService.writeFile(outputPath, result);
     }
 
-    // Обработка шифрования — интерактивный режим
+    /**
+     * Обрабатывает режим шифрования:
+     * - Запрашивает у пользователя пути к файлам и ключ,
+     * - Проверяет существование входного файла,
+     * - Производит шифрование и сохраняет результат.
+     */
+
     private void handleEncryption() {
         try {
             System.out.print("Введите путь к исходному файлу: ");
@@ -120,6 +173,13 @@ public class MainController {
         }
     }
 
+    /**
+     * Обрабатывает режим дешифрования:
+     * - Запрашивает у пользователя пути к файлам и ключ,
+     * - Проверяет существование входного файла,
+     * - Производит дешифрование и сохраняет результат.
+     */
+
     private void handleDecryption() {
         try {
             System.out.print("Введите путь к исходному файлу: ");
@@ -160,6 +220,13 @@ public class MainController {
 
     }
 
+    /**
+     * Обрабатывает режим brute force (перебор ключей):
+     * - Запрашивает у пользователя путь к зашифрованному файлу и путь для сохранения результата,
+     * - Проверяет существование входного файла,
+     * - Выполняет перебор ключей для расшифровки и сохраняет результат.
+     */
+
     private void handleBruteForce() {
         try {
             System.out.print("Введите путь к зашифрованному файлу: ");
@@ -189,6 +256,13 @@ public class MainController {
         }
     }
 
+    /**
+     * Обрабатывает режим brute force (перебор ключей):
+     * - Запрашивает у пользователя путь к зашифрованному файлу и путь для сохранения результата,
+     * - Проверяет существование входного файла,
+     * - Выполняет перебор ключей для расшифровки и сохраняет результат.
+     */
+
     private void handleStatisticalAnalyzer() {
         try {
             System.out.print("Введите путь к зашифрованному файлу: ");
@@ -217,6 +291,13 @@ public class MainController {
             e.printStackTrace(); // Выводит стек вызовов для отладки
         }
     }
+
+    /**
+     * Проверяет, что ключ корректен (в диапазоне от 1 до максимального размера алфавита).
+     *
+     * @param key ключ для проверки
+     * @return true, если ключ валиден, иначе false
+     */
 
     private static boolean isValidKey(int key) {
         int maxAlphabetSize = Alphabet.getMaxAlphabetSize();
