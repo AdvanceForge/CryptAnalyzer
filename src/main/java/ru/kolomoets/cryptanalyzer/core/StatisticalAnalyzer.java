@@ -11,7 +11,9 @@ import java.util.Map;
  * Класс для статистического анализа зашифрованного текста.
  * Используется метод частотного анализа: предположение, что
  * самый часто встречающийся символ в тексте соответствует
- * самому частому символу языка (например, 'о' в русском, 'e' в английском).
+ * самому частому символу языка (например, 'о' или 'О' в русском,
+ * 'e' или 'E' в английском).
+ *
  */
 
 public class StatisticalAnalyzer {
@@ -84,7 +86,7 @@ public class StatisticalAnalyzer {
         Map<Type, Integer> typeCounts = new HashMap<>();
 
         // Проходим по каждому символу текста
-        for (char ch : text.toLowerCase().toCharArray()) {
+        for (char ch : text.toCharArray()) {
             // Определяем тип алфавита для символа (RUSSIAN, ENGLISH, SYMBOLS)
             Type type = Alphabet.detectedType(ch);
             // Если тип определен, увеличиваем счетчик для этого алфавита
@@ -112,10 +114,8 @@ public class StatisticalAnalyzer {
         }
         return mainType;
     }
-
     /**
      * Находит самый часто встречающийся символ в тексте для указанного алфавита.
-     * Предполагается, что текст уже приведён к нижнему регистру.
      *
      * @param text Исходный текст для анализа
      * @param type Тип алфавита, по которому ищем самый частый символ
@@ -127,7 +127,7 @@ public class StatisticalAnalyzer {
         // Создаем словарь для подсчета частоты символов
         Map<Character, Integer> charCount = new HashMap<>();
         // Проходим по каждому символу текста
-        for (char ch : text.toLowerCase().toCharArray()) {
+        for (char ch : text.toCharArray()) {
             // Если символ принадлежит нужному алфавиту, увеличиваем его счетчик
             if (Alphabet.detectedType(ch) == type) {
                 charCount.put(ch, charCount.getOrDefault(ch, 0) + 1);
@@ -147,22 +147,24 @@ public class StatisticalAnalyzer {
     }
 
     /**
-     * Возвращает индекс предполагаемого самого частого символа в алфавите.
-     * Используется для вычисления ключа шифрования на основе частотного анализа.
-     * Для русского — ожидается символ 'о', для английского — 'e',
+     * Возвращает индекс предполагаемого самого частого символа в алфавите с учётом регистра.
+     * Для русского — ожидается символ 'о' или 'О',
+     * для английского — 'e' или 'E',
      * для символов — пробел ' '.
      *
-     * @param type Тип алфавита (русский, английский или символы)
+     * @param type Тип алфавита с регистром
      * @param alphabet Список символов алфавита
-     * @return Индекс предполагаемого самого частого символа в алфавите,
+     * @return Индекс предполагаемого самого частого символа,
      *         либо -1, если символ не найден
      */
 
     private static int getExpectedIndex(Type type, List<Character> alphabet) {
         // Возвращаем позицию 'о' для русского алфавита
-        if (type == Type.RUSSIAN) return alphabet.indexOf('о');
+        if (type == Type.RUSSIAN_LOWER) return alphabet.indexOf('о');
+        if (type == Type.RUSSIAN_UPPER) return alphabet.indexOf('О');
         // Возвращаем позицию 'e' для английского алфавита
-        if (type == Type.ENGLISH) return alphabet.indexOf('e');
+        if (type == Type.ENGLISH_LOWER) return alphabet.indexOf('e');
+        if (type == Type.ENGLISH_UPPER) return alphabet.indexOf('E');
         // Возвращаем позицию пробела для символов
         return alphabet.indexOf(' ');
     }

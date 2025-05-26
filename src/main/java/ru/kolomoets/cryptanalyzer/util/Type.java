@@ -1,7 +1,9 @@
 package ru.kolomoets.cryptanalyzer.util;
 
 public enum Type {
-    RUSSIAN,
-    ENGLISH,
+    RUSSIAN_LOWER,
+    RUSSIAN_UPPER,
+    ENGLISH_LOWER,
+    ENGLISH_UPPER,
     SYMBOLS
 }
