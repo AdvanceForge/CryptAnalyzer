@@ -146,19 +146,31 @@ public class MainController {
             String parentDir = path.getParent() != null ? path.getParent().toString() : "."; // если файл в текущей директории
 
             System.out.print("Введите путь для записи зашифрованного текста (оставьте пустым для encrypt.txt): ");
-            String outputPath = scanner.nextLine();
+            String outputPath = scanner.nextLine(); // Здесь считывается ввод пользователя (сырой путь)
+
+            String finalOutputPath; // Переменная, которая будет хранить окончательный, полный путь для записи
 
             // Если путь не введён, создаём файл encrypt.txt в той же директории
             if (outputPath.isBlank()) {
-                outputPath = Path.of(parentDir, "encrypt.txt").toString();
+                // Если ввод пустой, используем имя по умолчанию в родительской директории
+                finalOutputPath = Path.of(parentDir, "encrypt.txt").toString();
+            } else {
+                Path userOutputPath = Path.of(outputPath); // Преобразуем ввод в Path для анализа
+                if (userOutputPath.isAbsolute()) {
+                    // Если ввод - абсолютный путь, используем его как есть
+                    finalOutputPath = outputPath;
+                } else {
+                    // Если ввод - относительный путь, присоединяем его к родительской директории входного файла
+                    finalOutputPath = Path.of(parentDir).resolve(userOutputPath).toString();
+                }
             }
             System.out.print("🗝️ Введите ключ (целое число): ");
 
             int key = Integer.parseInt(scanner.nextLine());
 
             if (isValidKey(key)) {
-                encrypt(inputPath, outputPath, key);
-                System.out.println("✔️ Текст успешно зашифрован и записан в: " + outputPath);
+                encrypt(inputPath, finalOutputPath, key);
+                System.out.println("✔️ Текст успешно зашифрован и записан в: " + finalOutputPath);
             }
 
         } catch (NumberFormatException e) {
@@ -196,16 +208,28 @@ public class MainController {
             System.out.print("Введите путь для записи расшифрованного текста (оставьте пустым для decrypt.txt): ");
             String outputPath = scanner.nextLine();
 
+            String finalOutputPath; // Переменная, которая будет хранить окончательный, полный путь для записи
+
             // Если путь не введён, создаём файл decrypt.txt в той же директории
             if (outputPath.isBlank()) {
-                outputPath = Path.of(parentDir, "decrypt.txt").toString();
+                // Если ввод пустой, используем имя по умолчанию в родительской директории
+                finalOutputPath = Path.of(parentDir, "decrypt.txt").toString();
+            } else {
+                Path userOutputPath = Path.of(outputPath); // Преобразуем ввод в Path для анализа
+                if (userOutputPath.isAbsolute()) {
+                    // Если ввод - абсолютный путь, используем его как есть
+                    finalOutputPath = outputPath;
+                } else {
+                    // Если ввод - относительный путь, присоединяем его к родительской директории входного файла
+                    finalOutputPath = Path.of(parentDir).resolve(userOutputPath).toString();
+                }
             }
 
             System.out.print("🗝️ Введите ключ (целое число): ");
             int key = Integer.parseInt(scanner.nextLine());
             if (isValidKey(key)) {
-                decrypt(inputPath, outputPath, key);
-                System.out.println("✔️ Текст успешно расшифрован и записан в: " + outputPath);
+                decrypt(inputPath, finalOutputPath, key);
+                System.out.println("✔️ Текст успешно расшифрован и записан в: " + finalOutputPath);
             }
         } catch (NumberFormatException e) {
             System.err.println("❌ Ключ должен быть целым числом");
@@ -241,11 +265,26 @@ public class MainController {
 
             System.out.println("Введите путь для сохранения результата (оставьте пустым для brute_force.txt): ");
             String outputPath = scanner.nextLine();
+
+            String finalOutputPath; // Переменная, которая будет хранить окончательный, полный путь для записи
+
+            // Если путь не введён, создаём файл brute_force.txt в той же директории
             if (outputPath.isBlank()) {
-                outputPath = Path.of(parentDir, "brute_force.txt").toString();
+                // Если ввод пустой, используем имя по умолчанию в родительской директории
+                finalOutputPath = Path.of(parentDir, "brute_force.txt").toString();
+            } else {
+                Path userOutputPath = Path.of(outputPath); // Преобразуем ввод в Path для анализа
+                if (userOutputPath.isAbsolute()) {
+                    // Если ввод - абсолютный путь, используем его как есть
+                    finalOutputPath = outputPath;
+                } else {
+                    // Если ввод - относительный путь, присоединяем его к родительской директории входного файла
+                    finalOutputPath = Path.of(parentDir).resolve(userOutputPath).toString();
+                }
             }
-            bruteForce(inputPath, outputPath);
-            System.out.println("✔️ Brute force завершён. Результат записан в: " + outputPath);
+
+            bruteForce(inputPath, finalOutputPath);
+            System.out.println("✔️ Brute force завершён. Результат записан в: " + finalOutputPath);
         } catch (FileReadException e) {
             System.err.println("❌ Не удалось прочитать файл: " + e.getMessage());
         } catch (FileWriteException e) {
@@ -277,11 +316,26 @@ public class MainController {
 
             System.out.print("Введите путь для сохранения результата (оставьте пустым для stat_analyze.txt): ");
             String outputPath = scanner.nextLine();
+
+            String finalOutputPath; // Переменная, которая будет хранить окончательный, полный путь для записи
+
+            // Если путь не введён, создаём файл stat_analyze.txt в той же директории
             if (outputPath.isBlank()) {
-                outputPath = Path.of(parentDir, "stat_analyze.txt").toString();
+                // Если ввод пустой, используем имя по умолчанию в родительской директории
+                finalOutputPath = Path.of(parentDir, "stat_analyze.txt").toString();
+            } else {
+                Path userOutputPath = Path.of(outputPath); // Преобразуем ввод в Path для анализа
+                if (userOutputPath.isAbsolute()) {
+                    // Если ввод - абсолютный путь, используем его как есть
+                    finalOutputPath = outputPath;
+                } else {
+                    // Если ввод - относительный путь, присоединяем его к родительской директории входного файла
+                    finalOutputPath = Path.of(parentDir).resolve(userOutputPath).toString();
+                }
             }
-            statisticalAnalyze(inputPath, outputPath);
-            System.out.println("✔️ Статистический анализ завершён. Результат записан в: " + outputPath);
+
+            statisticalAnalyze(inputPath, finalOutputPath);
+            System.out.println("✔️ Статистический анализ завершён. Результат записан в: " + finalOutputPath);
         } catch (FileReadException e) {
             System.err.println("❌ Не удалось прочитать файл: " + e.getMessage());
         } catch (FileWriteException e) {
