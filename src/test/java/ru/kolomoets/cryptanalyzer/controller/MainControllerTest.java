@@ -70,7 +70,7 @@ class MainControllerTest {
 
         //Сравниваем результат с оригиналом
         String actual = Files.readString(outputFile).trim();
-        assertEquals(originalText.toLowerCase(), actual);
+        assertEquals(originalText, actual);
     }
 
 }

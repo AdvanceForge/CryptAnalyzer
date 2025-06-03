@@ -53,6 +53,11 @@ public class MainController {
                 case "4" -> handleStatisticalAnalyzer();
                 default -> System.err.println("Неверная команда.");
             }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             System.out.println("\n");
         }
     }
